@@ -20,32 +20,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          # Строку с кэшем мы убрали специально
+
       - name: Install dependencies
         run: npm install
-      - name: Build project
-        run: npm run build
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist
-
-steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          # СТРОКУ cache: 'npm' МЫ УДАЛИЛИ, ОНА БОЛЬШЕ НЕ НУЖНА
-
-      - name: Install dependencies
-        run: npm install  # <--- ЗДЕСЬ ОБЯЗАТЕЛЬНО ДОЛЖНО БЫТЬ install (не ci)
 
       - name: Build project
         run: npm run build
@@ -54,3 +37,14 @@ steps:
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+        id: deployment
